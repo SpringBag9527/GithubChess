@@ -1,0 +1,15 @@
+RNBQKBNR
+PPPPPPPP
+________
+________
+________
+________
+pppppppp
+rnbqkbnr
+b
+0
+w1,w2
+85A5D36DC505D4E9F90DF08E5C63AB9A
+1
+______,w,0
+557A9448E00CF891FEA08E56A544A633

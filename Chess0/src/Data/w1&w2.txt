@@ -1,0 +1,14 @@
+RNBQKBNR
+PPPPPPPP
+________
+________
+________
+________
+pppppppp
+rnbqkbnr
+w
+0
+w1,w2
+03140476230EAD3F78D783A7C1312349
+0
+18C64C5CAA4CAFCBCA557A6D90AAE422
