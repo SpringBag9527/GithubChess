@@ -37,11 +37,13 @@ public class KnightChessComponent extends ChessComponent{
             oldchesspath=chesspath;
         }
         if (KNIGHT_WHITE == null) {
-            KNIGHT_WHITE = ImageIO.read(new File("src/images/"+chesspath+"/knight-white.png"));
+            String filename="/images/"+chesspath+"/knight-white.png";
+            KNIGHT_WHITE = ImageIO.read(this.getClass().getResource(filename));
         }
 
         if (KNIGHT_BLACK == null) {
-            KNIGHT_BLACK = ImageIO.read(new File("src/images/"+chesspath+"/knight-black.png"));
+            String filename="/images/"+chesspath+"/knight-black.png";
+            KNIGHT_BLACK = ImageIO.read(this.getClass().getResource(filename));
         }
     }
 
