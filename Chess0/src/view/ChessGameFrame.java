@@ -5,7 +5,7 @@ import controller.GameController;
 import model.ChessColor;
 import model.ChessComponent;
 
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -35,13 +35,13 @@ public class ChessGameFrame extends JFrame {
     private GameController gameController;
     private Dimension frameSize;
     private ImageIcon BKimage;
-    private ImageIcon icon=new ImageIcon("src/images/icon.png");
+	private ImagePanel imagePanel;
+    private ImageIcon icon=new ImageIcon(this.getClass().getResource("/images/icon.png"));
     public Chessboard chessboard;
     private JLabel roundLabel;  //显示回合数的Label
     private JLabel sideLabel;   //显示当前走棋方的Label
     private JLabel timeLabel;   //显示倒计时90s
     public ChessPlayer[] player;
-    private ImagePanel imagePanel;
     private ChessGameFrame Me;
     private boolean TimeThreadExist=false;      //时间线程是否存在
     public  BgSound BackGroundSound;
@@ -81,13 +81,12 @@ public class ChessGameFrame extends JFrame {
         imagePanel= new ImagePanel(frameSize, BKimage.getImage());
         setContentPane(imagePanel);
         setLayout(null);
-        //设置棋盘
+		
+        //设置棋盘四周黑框
         addHLable(16,0);
         addVLable(0,16);
-        //addChessboard();
         addHLable(16,CHESSBOARD_SIZE+16);
         addVLable(16+CHESSBOARD_SIZE,16);
-
         addBlockLable(16);
 
         addChessboard();
@@ -180,7 +179,7 @@ public class ChessGameFrame extends JFrame {
         lah.setFont(new Font("Rockwell", Font.BOLD, 18));lah.setOpaque(true);lah.setBackground(Color.BLACK);
         lah.setForeground(Color.WHITE);add(lah);
     }
-
+	//设置棋盘4角的4个黑块
     public void addBlockLable(int z){
         JLabel laa=new JLabel("",JLabel.CENTER);laa.setLocation(0,0);laa.setSize(z,z);
         laa.setOpaque(true);laa.setBackground(Color.BLACK);add(laa);
@@ -194,25 +193,25 @@ public class ChessGameFrame extends JFrame {
 
     public void addRightLabel(){
         roundLabel = new JLabel("Round:");
-        roundLabel.setLocation(HEIGHT, 10);
+        roundLabel.setLocation(HEIGHT-50, 10);
         roundLabel.setSize(200, 40);
-        roundLabel.setFont(new Font("Rockwell", Font.BOLD, 20));
+        roundLabel.setFont(new Font("华文琥珀", Font.PLAIN, 30));
         roundLabel.setForeground(Color.RED);
         roundLabel.setBackground(Color.BLACK);
         add(roundLabel);
 
         String color = chessboard.getCurrentPlayer().toString();
-        sideLabel=new JLabel("Side:");
-        sideLabel.setLocation(HEIGHT,40);
-        sideLabel.setSize(200,60);
-        sideLabel.setFont(new Font("Rockwell", Font.BOLD, 20));
+        sideLabel = new JLabel("Side:");
+        sideLabel.setLocation(HEIGHT-50, 40);
+        sideLabel.setSize(200, 60);
+        sideLabel.setFont(new Font("华文琥珀", Font.PLAIN, 30));
         sideLabel.setForeground(Color.BLUE);
         add(sideLabel);
 
-        timeLabel=new JLabel("Time: 20s");
-        timeLabel.setLocation(HEIGHT + 100,0);
-        timeLabel.setSize(200,60);
-        timeLabel.setFont(new Font("Rockwell", Font.BOLD, 20));
+        timeLabel = new JLabel("Time: "+SwapLoopTime+"s");
+        timeLabel.setLocation(HEIGHT + 100, 0);
+        timeLabel.setSize(200, 60);
+        timeLabel.setFont(new Font("华文琥珀", Font.PLAIN, 30));
         timeLabel.setForeground(Color.BLUE);
         add(timeLabel);
     }
@@ -235,18 +234,52 @@ public class ChessGameFrame extends JFrame {
                     setDownTimes();
             }
         });
-        button.setLocation(HEIGHT,90);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        button.setLocation(HEIGHT - 65, 90);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
         add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
     }
     //悔棋
     public void addRegretButton(){
         JButton button = new JButton("Regret Step");
-        button.setLocation(HEIGHT,140);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        button.setLocation(HEIGHT - 65, 140);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
         add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -275,17 +308,34 @@ public class ChessGameFrame extends JFrame {
 
     public void addLoadButton(){
         JButton button = new JButton("Load Game");
-        button.setLocation(HEIGHT,190);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        button.setLocation(HEIGHT - 65, 190);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
         add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
 
         button.addActionListener(e -> {
             if(!ButtonCommonProc())
                 return;
             //载入文件
             JFileChooser chooser = new JFileChooser();
-            chooser.setCurrentDirectory(new File("src/data"));
+            chooser.setCurrentDirectory(new File("data"));
             chooser.setDialogTitle("Open file");
             FileNameExtensionFilter filter = new FileNameExtensionFilter(null,"txt","TXT");
             chooser.setFileFilter(filter);
@@ -295,12 +345,12 @@ public class ChessGameFrame extends JFrame {
             if (result == JFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();
                 absolutePath = file.getAbsolutePath();
-                System.out.println("You chose to open this file: " +
-                        file.getName());
+//                System.out.println("You chose to open this file: " +
+//                        file.getName());
                 String s=file.getName();
 
                 if(!s.toLowerCase().contains(".txt")){
-                    JOptionPane.showMessageDialog(this, "不符合存档文件格式，拒绝操作！",
+                    JOptionPane.showMessageDialog(this, "104.不符合存档文件格式，拒绝操作！",
                             "Error",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -342,12 +392,31 @@ public class ChessGameFrame extends JFrame {
 
         });
     }
+
     public void addSaveButton(){
         JButton button = new JButton("Save Game");
-        button.setLocation(HEIGHT,240);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        button.setLocation(HEIGHT - 65, 240);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
         add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
+
 
         button.addActionListener(e -> {
             if(!ButtonCommonProc())
@@ -355,7 +424,7 @@ public class ChessGameFrame extends JFrame {
             String defaultFileName = player[0].getName() +"&"+ player[1].getName() + ".txt";
 
             JFileChooser chooser = new JFileChooser();
-            chooser.setCurrentDirectory(new File("src/data"));
+            chooser.setCurrentDirectory(new File("data"));
             chooser.setDialogTitle("Save File");
             FileNameExtensionFilter filter = new FileNameExtensionFilter(null,"txt");
             chooser.setFileFilter(filter);
@@ -427,25 +496,46 @@ public class ChessGameFrame extends JFrame {
 
     //复盘Review
     public void addReviewButton(){
-        JButton button=new JButton("Review");
-        button.setLocation(HEIGHT,290);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        JButton button = new JButton("Review");
+        button.setLocation(HEIGHT - 65, 290);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
         add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
+
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!ButtonCommonProc())
                     return;
                 Stack<String> slist=chessboard.getStepList();
-                System.out.println("按钮里 size="+slist.size());
                 if(slist.size()==0){
                     JOptionPane.showMessageDialog(null, "没有可复盘的信息！", "Error",JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+				//倒计时线程暂停
                 setDownTimes(-2);
+				//开始Review线程
                 new ReviewThread(Me,slist).start();
+				//做好线程标志，其他操作前都判该标志，为true一律不允许做
                 ReviewThreadExist=true;
+				//布置新棋局,供Review线程做回放
                 NewGame();
                 Me.repaint();
 
@@ -454,11 +544,28 @@ public class ChessGameFrame extends JFrame {
     }
 
     public void addRankButton(){
-        JButton button=new JButton("Ranking List");
-        button.setLocation(HEIGHT,340);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        JButton button = new JButton("Ranking List");
+        button.setLocation(HEIGHT - 65, 340);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
         add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -475,10 +582,28 @@ public class ChessGameFrame extends JFrame {
 
     //更换背景按钮显示及事件处理
     public void addChBGButton(){
-        JButton button=new JButton("Change Skin");
-        button.setLocation(HEIGHT,390);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        JButton button = new JButton("Change Skin");
+        button.setLocation(HEIGHT - 65, 390);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
+        add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -486,9 +611,9 @@ public class ChessGameFrame extends JFrame {
                     return;
                 //先保存棋局
                 List<String> GameData= null;
-
-                GameData = chessboard.GetGameData();
-                String[] options={"A大海无量","B火热玫瑰","C神秘蜗牛","D银河之光"};
+				GameData = chessboard.GetGameData();
+				
+                String[] options={"A Picture1","B Picture2","C Picture3","D Picture4"};
                 int n =  JOptionPane.showOptionDialog(null,"请选择新背景：","提示",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,icon,options,options[0]);		//选择对话框*/
                 switch (n){
                     case 0:
@@ -505,24 +630,40 @@ public class ChessGameFrame extends JFrame {
                         BKimage=new ImageIcon(this.getClass().getResource("/images/bg4.jpg"));
                         break;
                 }
-
+				String OldChessPath=chessboard.getChessPath();
                 //重新显示界面
                 addImageByRepaint();
+				chessboard.setChessPath(OldChessPath);
                 //刷新棋局
                 displayGame(GameData);
             }
         });
-        add(button);
     }
-
-
 
     //更换棋盘
     public void addChChessBoardButton(){
-        JButton button=new JButton("Change ChessBoard");
-        button.setLocation(HEIGHT,440);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,14));
+        JButton button = new JButton("Change ChessBoard");
+        button.setLocation(HEIGHT - 65, 440);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 14));
+        add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -584,15 +725,33 @@ public class ChessGameFrame extends JFrame {
                 displayGame(GameData);
             }
         });
-        add(button);
     }
 
     //更换棋子类型
     public void addChFormButton(){
-        JButton button=new JButton("Change Style");
-        button.setLocation(HEIGHT,490);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        JButton button = new JButton("Change ChessStyle");
+        button.setLocation(HEIGHT - 65, 490);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
+
+        add(button);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -619,15 +778,33 @@ public class ChessGameFrame extends JFrame {
                 g2.dispose();
             }
         });
-        add(button);
     }
 
     //增加背景音乐控制功能
     public void addBGSoundButton(){
-        JButton SoundBtn =new JButton("Play BG Sound");
-        SoundBtn.setLocation(HEIGHT,540);
-        SoundBtn.setSize(180,40);
-        SoundBtn.setFont(new Font("Rockwell",Font.BOLD,20));
+        JButton SoundBtn = new JButton("Play BG Sound");
+        SoundBtn.setLocation(HEIGHT - 65, 540);
+        SoundBtn.setSize(310, 40);
+        SoundBtn.setFont(new Font("Rockwell", Font.BOLD, 20));
+        add(SoundBtn);
+
+        SoundBtn.setContentAreaFilled(true);
+        SoundBtn.setBorderPainted(false);
+        SoundBtn.setFocusPainted(false);
+        SoundBtn.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        SoundBtn.setForeground(new Color(47, 47, 89));
+
+        SoundBtn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                SoundBtn.setForeground(new Color(253, 0, 152));
+                SoundBtn.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                SoundBtn.setForeground(new Color(47, 47, 89));
+                SoundBtn.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
         SoundBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -643,14 +820,30 @@ public class ChessGameFrame extends JFrame {
                 }
             }
         });
-        add(SoundBtn);
     }
 
     public void addExitButton(){
-        JButton button=new JButton("Exit");
-        button.setLocation(HEIGHT,590);
-        button.setSize(180,40);
-        button.setFont(new Font("Rockwell",Font.BOLD,20));
+        JButton button = new JButton("Exit");
+        button.setLocation(HEIGHT - 65, 590);
+        button.setSize(310, 40);
+        button.setFont(new Font("Rockwell", Font.BOLD, 20));
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+        button.setForeground(new Color(47, 47, 89));
+        add(button);
+        button.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(new Color(253, 0, 152));
+                button.setFont(new Font("华文彩云", Font.PLAIN, 30));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(new Color(47, 47, 89));
+                button.setFont(new Font("华文琥珀", Font.PLAIN, 30));
+            }
+        });
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -660,7 +853,6 @@ public class ChessGameFrame extends JFrame {
                 System.exit(0);
             }
         });
-        add(button);
     }
 
     //按钮功能的操作
@@ -673,6 +865,16 @@ public class ChessGameFrame extends JFrame {
         BackGroundSound.play("button");
         chessboard.clickController.FrameDoButton();
         return(true);
+    }
+
+    public void ButtonCheckMate() {
+        BackGroundSound.play("将军");
+        //chessboard.clickController.FrameDoButton();
+    }
+
+    public void ButtonKill() {
+        BackGroundSound.play("绝杀无解");
+        //chessboard.clickController.FrameDoButton();
     }
 
     public void NewGame(){
@@ -710,7 +912,7 @@ public class ChessGameFrame extends JFrame {
         sideLabel.setText("Side: "+chessboard.getSide());
     }
 
-    //倒计时线程，程序会一直存在
+    //倒计时线程，只要启动，线程会一直存在
     //DownTimes>=0倒计时时间，需要显示
     //DownTimes=-2-3，不显示内容（设置该值时，务必使用-2 -3可能会变化出来）
     public void addTimerEventHandler(int second){
@@ -748,9 +950,7 @@ public class ChessGameFrame extends JFrame {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
                 }
-
             }
         }.start();
     }
@@ -781,7 +981,6 @@ public class ChessGameFrame extends JFrame {
 
         byte[] keyHmacMD5 = Key.getBytes();
         String result = MACCoder.encodeHmacMD5(instr.getBytes(), keyHmacMD5);
-        System.out.printf("inStr=[%d|%s] re=[%d|%s]\n",instr.length(),instr,result.length(),result);
 
         return (result);
     }
@@ -796,7 +995,7 @@ public class ChessGameFrame extends JFrame {
         }
         String Mac=GetStringMac(sAll);
         if(!Mac.equals(ListData.get(11))) {   //与记录的数据做对比
-            JOptionPane.showMessageDialog(this, "存盘数据校验不通过，怀疑数据被篡改，不予接受！",
+            JOptionPane.showMessageDialog(this, "存档数据校验不通过，怀疑数据被篡改，不予接受！",
                     "Error",JOptionPane.ERROR_MESSAGE);
             return(false);
         }
@@ -830,21 +1029,16 @@ public class ChessGameFrame extends JFrame {
 
 class ImagePanel extends JPanel {
     Dimension d;
-
     Image image;
     public ImagePanel(Dimension d, Image image) {
         super();
         this.d =d;
         this.image =image;
     }
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         g.drawImage(image,0, 0, d.width, d.height, this);
-
-//        ChessGameFrame.instance().repaint();
     }
 }
 
@@ -999,60 +1193,59 @@ class MACCoder {
 class ReviewThread extends Thread{
     private ChessGameFrame faframe;
     private ArrayList<String> slist=new ArrayList<>();
-
+	//构造回放线程，得到主窗口类和走棋步骤数据
     ReviewThread(ChessGameFrame frame,Stack<String> stack){
         this.faframe=frame;
-        System.out.println("构造，size="+stack.size());
         for(int i=0;i<stack.size();i++){
             slist.add(stack.get(i));
         }
     }
-
+	//回放线程，完毕后退出
     public void run(){
         int count=slist.size();
-        System.out.println("step count="+count);
+        System.out.println("count="+count);
         int i=0;
         while(i<count){
             try {
                 Thread.sleep(800);
-                System.out.printf("[%d] [%s]\n",i,slist.get(i));
+//                System.out.printf("[%d] [%s]\n",i,slist.get(i));
                 ReviewOneStep(slist.get(i));
 
                 i++;
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }
         }
         faframe.setReviewThreadExist(false);
-        System.out.println("复盘进程退出");
+//        System.out.println("复盘进程退出");
     }
-
-    private void ReviewOneStep(String s) throws InterruptedException { ;
+	//回放一步操作
+    private void ReviewOneStep(String s) throws InterruptedException, IOException { ;
         String[] ss=s.split(",");
-
-        int sx = Integer.parseInt(ss[0].substring(1, 2));
-        int sy = Integer.parseInt(ss[0].substring(2, 3));
-        int tx = Integer.parseInt(ss[0].substring(4, 5));
-        int ty = Integer.parseInt(ss[0].substring(5, 6));
         String s1 = ss[0].substring(1, 2);
+		//超时换手的情况，只更新当前方和回合数
         if(s1.equals("_")){
             s1="";
         }
-        else {
+        else{
+            int sx = Integer.parseInt(ss[0].substring(1, 2));
+            int sy = Integer.parseInt(ss[0].substring(2, 3));
+            int tx = Integer.parseInt(ss[0].substring(4, 5));
+            int ty = Integer.parseInt(ss[0].substring(5, 6));
             ChessComponent first = faframe.chessboard.chessComponents[sx][sy];
             ChessComponent second = faframe.chessboard.chessComponents[tx][ty];
-            //选择
-            first.setSelected(false);
-            faframe.chessboard.clickController.ShowAllCanMove(first, false);
+            //选择第一个棋子
+            first.setSelected(true);
+            first.repaint();
+            faframe.chessboard.clickController.ShowAllCanMove(first, true);
             Thread.sleep(800);
-
+			//交换位置
+			first.setSelected(false);
             faframe.chessboard.clickController.ShowAllCanMove(first, false);
             faframe.chessboard.swapChessComponents(first, second);
-            //chessboard.swapColor();
-            //chessboard.swapChessComponentsJudge(first);
-
             first = null;
         }
+		//更新当前方和回合数
         faframe.chessboard.setcurPlayerRound(ss[1],ss[2]);
         faframe.chessboard.cgameFrame.RefreshStep();
     }
