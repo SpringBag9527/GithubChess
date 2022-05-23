@@ -7,6 +7,9 @@ import model.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -29,7 +32,7 @@ public class Chessboard extends JComponent {
     public final ChessComponent[][] chessComponents = new ChessComponent[CHESSBOARD_SIZE][CHESSBOARD_SIZE];
     //private ChessColor currentColor = ChessColor.WHITE;
     private ChessColor currentPlayer = ChessColor.WHITE;
-    private int currentRound = 1;      //当前回合数
+    private int currentRound = 0;      //当前回合数
     public final ClickController clickController = new ClickController(this);
     private final int CHESS_SIZE;
     public ChessGameFrame cgameFrame;
@@ -53,14 +56,14 @@ public class Chessboard extends JComponent {
     public void setChessPath(String chesspath) {
         this.ChessPath = chesspath;
     }
-
+	public String getChessPath(){return(ChessPath);}
+	
     public Chessboard(ChessGameFrame chessgameframe, int width, int height) {
         this.cgameFrame = chessgameframe;
         setLayout(null);
         setSize(width + 16, height + 16);
         CHESS_SIZE = width / 8;
         repaint();           //????
-        //System.out.printf("chessboard size = %d,chess size = %d\n",width,CHESS_SIZE);
 
         initiateEmptyChessboard();//初始化空棋盘
     }
@@ -72,7 +75,7 @@ public class Chessboard extends JComponent {
     public String getSide() {
         return (currentPlayer.toString());
     }
-    
+
     public void initiateEmptyChessboard() {
         for (int i = 0; i < chessComponents.length; i++) {
             for (int j = 0; j < chessComponents[i].length; j++) {
@@ -126,8 +129,20 @@ public class Chessboard extends JComponent {
         putChessOnBoard(chessComponent);
     }
 
-    public void swapChessComponents(ChessComponent chess1, ChessComponent chess2) {
-        // Note that chess1 has higher priority, 'destroys' chess2 if exists.
+    public void plus(int a){
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (chessComponents[i][j].getChessColor() == ChessColor.BLACK && chessComponents[i][j] instanceof PawnChessComponent) {
+                    ((PawnChessComponent) chessComponents[i][j]).judgeRoundPlus = a;
+
+                } else if (chessComponents[i][j].getChessColor() == ChessColor.WHITE && chessComponents[i][j] instanceof PawnChessComponent){
+                    ((PawnChessComponent) chessComponents[i][j]).judgeRoundPlus = a;
+                }
+            }
+        }
+    }
+
+    public void swapChessComponents(ChessComponent chess1, ChessComponent chess2) throws IOException {
         addStepList(chess1, chess2);
         int i = 0;
         int j = 0;
@@ -135,8 +150,7 @@ public class Chessboard extends JComponent {
             cgameFrame.BackGroundSound.play("kill");
             remove(chess2);
             add(chess2 = new EmptySlotComponent(chess2.getChessboardPoint(), chess2.getLocation(), clickController, CHESS_SIZE, '_', ChessPath));
-        }
-        else
+        } else
             cgameFrame.BackGroundSound.play("move");
         chess1.swapLocation(chess2);
         int row1 = chess1.getChessboardPoint().getX(), col1 = chess1.getChessboardPoint().getY();
@@ -151,6 +165,7 @@ public class Chessboard extends JComponent {
         }
         if (j == 1) {
             CheckMateKilling();
+            cgameFrame.UpdateGameResultToPlayer(chess1.getChessColor());
         } else if (i == 1) {
             CheckMateWaning();
         }
@@ -159,11 +174,149 @@ public class Chessboard extends JComponent {
     }
 
     public void swapChessComponentsJudge(ChessComponent chess2) {
-        if (CheckMateFan(chessComponents,chess2)){
+        if (CheckMateFan(chessComponents, chess2)) {
             RegretStep(1);
             CheckMateWaning1();
         }
     }
+
+    public void swapPawnComponents(ChessComponent chess1, ChessComponent chess2) {
+        // Note that chess1 has higher priority, 'destroys' chess2 if exists.
+        addStepList(chess1, chess2);
+        int i = 0;
+        int j = 0;
+        if (chess1.getChessColor() == ChessColor.BLACK) {
+            int row0 = chess2.getChessboardPoint().getX(), col0 = chess2.getChessboardPoint().getY();
+            ChessComponent chess3 = chessComponents[row0 + 1][col0];
+            if (!(chess2 instanceof EmptySlotComponent)) {
+                remove(chess2);
+                add(chess2 = new EmptySlotComponent(chess2.getChessboardPoint(), chess2.getLocation(), clickController, CHESS_SIZE, '_', ChessPath));
+            }
+            chess1.swapLocation(chess2);
+            int row1 = chess1.getChessboardPoint().getX(), col1 = chess1.getChessboardPoint().getY();
+            chessComponents[row1][col1] = chess1;
+            int row2 = chess2.getChessboardPoint().getX(), col2 = chess2.getChessboardPoint().getY();
+            chessComponents[row2][col2] = chess2;
+            addStepList(chess1, chess3);
+            chess1.swapLocation(chess3);
+            int row11 = chess1.getChessboardPoint().getX(), col11 = chess1.getChessboardPoint().getY();
+            chessComponents[row11][col11] = chess1;
+            int row3 = chess3.getChessboardPoint().getX(), col3 = chess3.getChessboardPoint().getY();
+            chessComponents[row3][col3] = chess3;
+            chess3.repaint();
+        } else if (chess1.getChessColor() == ChessColor.WHITE) {
+            int row0 = chess1.getChessboardPoint().getX(), col0 = chess2.getChessboardPoint().getY();
+            ChessComponent chess3 = chessComponents[row0 - 1][col0];
+            if (!(chess2 instanceof EmptySlotComponent)) {
+                remove(chess2);
+                add(chess2 = new EmptySlotComponent(chess2.getChessboardPoint(), chess2.getLocation(), clickController, CHESS_SIZE, '_', ChessPath));
+            }
+            chess1.swapLocation(chess2);
+            int row1 = chess1.getChessboardPoint().getX(), col1 = chess1.getChessboardPoint().getY();
+            chessComponents[row1][col1] = chess1;
+            int row2 = chess2.getChessboardPoint().getX(), col2 = chess2.getChessboardPoint().getY();
+            chessComponents[row2][col2] = chess2;
+            addStepList(chess1, chess3);
+            chess1.swapLocation(chess3);
+            int row11 = chess1.getChessboardPoint().getX(), col11 = chess1.getChessboardPoint().getY();
+            chessComponents[row11][col11] = chess1;
+            int row3 = chess3.getChessboardPoint().getX(), col3 = chess3.getChessboardPoint().getY();
+            chessComponents[row3][col3] = chess3;
+            chess3.repaint();
+        }
+        if (CheckMate(chessComponents, chess1)) {
+            i = 1;
+        }
+        if (CheckKilling(chessComponents, chess1)) {
+            j = 1;
+        }
+        if (j == 1) {
+            CheckMateKilling();
+        } else if (i == 1) {
+            CheckMateWaning();
+        }
+        chess2.repaint();
+        chess1.repaint();
+
+
+//        chess3.repaint();
+    }//吃过路兵
+
+    public void swapKingChangeRookComponentsLeft(ChessComponent chess1, ChessComponent chess2) {
+        // Note that chess1 has higher priority, 'destroys' chess2 if exists.
+        addStepList(chess1, chess2);
+        int i = 0;
+        int j = 0;
+        int row3 = chess1.getChessboardPoint().getX(), col3 = chess1.getChessboardPoint().getY() - 1;
+        ChessComponent chess3 = chessComponents[row3][col3];
+        int row4 = chess2.getChessboardPoint().getX(), col4 = chess2.getChessboardPoint().getY() - 2;
+        ChessComponent chess4 = chessComponents[row4][col4];
+
+        chess1.swapLocation(chess2);
+        int row1 = chess1.getChessboardPoint().getX(), col1 = chess1.getChessboardPoint().getY();
+        chessComponents[row1][col1] = chess1;
+        int row2 = chess2.getChessboardPoint().getX(), col2 = chess2.getChessboardPoint().getY();
+        chessComponents[row2][col2] = chess2;
+        chess3.swapLocation(chess4);
+        int row33 = chess3.getChessboardPoint().getX(), col33 = chess3.getChessboardPoint().getY();
+        chessComponents[row33][col33] = chess3;
+        int row44 = chess4.getChessboardPoint().getX(), col44 = chess4.getChessboardPoint().getY();
+        chessComponents[row44][col44] = chess4;
+
+        if (CheckMate(chessComponents, chess1)) {
+            i = 1;
+        }
+        if (CheckKilling(chessComponents, chess1)) {
+            j = 1;
+        }
+        if (j == 1) {
+            CheckMateKilling();
+        } else if (i == 1) {
+            CheckMateWaning();
+        }
+        chess2.repaint();
+        chess1.repaint();
+        chess3.repaint();
+        chess4.repaint();
+    }//王车易位左
+
+    public void swapKingChangeRookComponentsRight(ChessComponent chess1, ChessComponent chess2) {
+        // Note that chess1 has higher priority, 'destroys' chess2 if exists.
+        addStepList(chess1, chess2);
+        int i = 0;
+        int j = 0;
+        int row3 = chess1.getChessboardPoint().getX(), col3 = chess1.getChessboardPoint().getY() + 1;
+        ChessComponent chess3 = chessComponents[row3][col3];
+        int row4 = chess2.getChessboardPoint().getX(), col4 = chess2.getChessboardPoint().getY() + 1;
+        ChessComponent chess4 = chessComponents[row4][col4];
+
+        chess1.swapLocation(chess2);
+        int row1 = chess1.getChessboardPoint().getX(), col1 = chess1.getChessboardPoint().getY();
+        chessComponents[row1][col1] = chess1;
+        int row2 = chess2.getChessboardPoint().getX(), col2 = chess2.getChessboardPoint().getY();
+        chessComponents[row2][col2] = chess2;
+        chess3.swapLocation(chess4);
+        int row33 = chess3.getChessboardPoint().getX(), col33 = chess3.getChessboardPoint().getY();
+        chessComponents[row33][col33] = chess3;
+        int row44 = chess4.getChessboardPoint().getX(), col44 = chess4.getChessboardPoint().getY();
+        chessComponents[row44][col44] = chess4;
+
+        if (CheckMate(chessComponents, chess1)) {
+            i = 1;
+        }
+        if (CheckKilling(chessComponents, chess1)) {
+            j = 1;
+        }
+        if (j == 1) {
+            CheckMateKilling();
+        } else if (i == 1) {
+            CheckMateWaning();
+        }
+        chess2.repaint();
+        chess1.repaint();
+        chess3.repaint();
+        chess4.repaint();
+    }//王车易位右
 
     public boolean CheckMate(ChessComponent[][] chessComponent, ChessComponent chess2) {
         boolean kingDanger = false;
@@ -486,7 +639,7 @@ public class Chessboard extends JComponent {
                         }
                     }//车解将军判断
                 }
-                System.out.print(pre);
+//                System.out.print(pre);
             } else if (chess2.getChessColor() == ChessColor.BLACK) {
                 for (int i = 0; i < 8; i++) {
                     for (int j = 0; j < 8; j++) {
@@ -668,7 +821,37 @@ public class Chessboard extends JComponent {
     }
 
     private void CheckMateWaning() {
-        JOptionPane.showMessageDialog(this, "将军！");
+//        JOptionPane.showMessageDialog(this, "将军！");
+        JFrame CheckMate = new JFrame("FBI Waning");
+        JLayeredPane layeredPane;
+        JButton jb;
+        ImageIcon image = new ImageIcon(this.getClass().getResource("/images/将军.png"));
+        ImagePanel imagePanel= new ImagePanel(new Dimension(400,400), image.getImage());
+        CheckMate.setContentPane(imagePanel);
+        CheckMate.setLayout(null);
+
+        jb = new JButton("确定");
+        jb.setBounds(200, 300, 200, 50);
+        jb.setLocation(200,300);
+        jb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CheckMate.dispose();
+            }
+        });
+        CheckMate.add(jb);
+
+        CheckMate.setSize(400, 400);
+        CheckMate.setLocationRelativeTo(null);
+        CheckMate.setVisible(true);
+        cgameFrame.ButtonCheckMate();
+        CheckMate.setVisible(true);
+//        try{Thread.sleep(1000);}catch(Exception E){}
+//        for (int i = 0; i < 100000; i++) {
+//            System.out.print("");
+//        }
+//        CheckMate.setVisible(false);
+
     }
 
     private void CheckMateWaning1() {
@@ -676,7 +859,43 @@ public class Chessboard extends JComponent {
     }
 
     private void CheckMateKilling() {
-        JOptionPane.showMessageDialog(this, "绝杀！无解！！");
+//        JOptionPane.showMessageDialog(this, "绝杀！无解！！");
+        JFrame CheckMate = new JFrame("FBI Waning");
+        JLayeredPane layeredPane;
+        JPanel jp;
+        JLabel jl;
+        JButton jb;
+        layeredPane = new JLayeredPane();
+        //ImageIcon image = new ImageIcon("C:\\Users\\86136\\IdeaProjects\\Demo\\Chess0_0521\\Chess0150\\images\\绝杀_00(1).png");
+        ImageIcon image = new ImageIcon(this.getClass().getResource("/images/绝杀.png"));
+        ImagePanel imagePanel= new ImagePanel(new Dimension(400,400), image.getImage());
+        CheckMate.setContentPane(imagePanel);
+        CheckMate.setLayout(null);
+        /*
+        jp = new JPanel();
+        //jp.setBounds(0, 0, image.getIconWidth(), image.getIconHeight());
+        jp.setBounds(0, 0, 400, 400);
+        jl = new JLabel(image);
+        jp.add(jl);
+         */
+        jb = new JButton("确定");
+        jb.setBounds(200, 300, 200, 50);
+        jb.setLocation(200,300);
+        jb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CheckMate.dispose();
+            }
+        });
+        CheckMate.add(jb);
+        //layeredPane.add(jp, JLayeredPane.DEFAULT_LAYER);
+        //CheckMate.setLayeredPane(layeredPane);
+        //CheckMate.setSize(image.getIconWidth(), image.getIconHeight());
+        CheckMate.setSize(400, 400);
+        CheckMate.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        CheckMate.setLocationRelativeTo(null);
+        CheckMate.setVisible(true);
+        cgameFrame.ButtonKill();
     }
 
     public void swapColor() {
@@ -757,8 +976,8 @@ public class Chessboard extends JComponent {
         //加载完毕棋局，再加载步骤
         //获取步骤数量
 
-        int StepCount=Integer.parseInt(chessData.get(12));
-        for(i=13;i<13+StepCount;i++){
+        int StepCount = Integer.parseInt(chessData.get(12));
+        for (i = 13; i < 13 + StepCount; i++) {
             stepList.add(chessData.get(i));
         }
     }
@@ -772,29 +991,26 @@ public class Chessboard extends JComponent {
             for (int j = 0; j < 8; j++) {
                 list.append(chessComponents[i][j].GetChessName());
             }
-            //System.out.println(list);
             GameDataList.add(list.toString());
         }
         //加入当前方
         if (currentPlayer == ChessColor.BLACK) {
             GameDataList.add("b");
-        }
-        else {
+        } else {
             GameDataList.add("w");
         }
         //加入回合数
         String s1 = Integer.toString(currentRound);
         GameDataList.add(s1);
         //加入黑白方
-        s1=cgameFrame.player[0].getName() + "," + cgameFrame.player[1].getName();
+        s1 = cgameFrame.player[0].getName() + "," + cgameFrame.player[1].getName();
         GameDataList.add(s1);
         //加入空的Mac校验位
         GameDataList.add("MAC");
         //加入Step步骤数
-        int stepCount=stepList.size();
+        int stepCount = stepList.size();
         GameDataList.add(Integer.toString(stepCount));
-        for(int i=0;i<stepCount;i++)
-        {
+        for (int i = 0; i < stepCount; i++) {
             GameDataList.add(stepList.get(i));
         }
         //注意，这里缺少最后一行走棋MAC
@@ -803,24 +1019,24 @@ public class Chessboard extends JComponent {
     }
 
 
-    //步骤记录
+    //交换位置时记录步骤
     public void addStepList(ChessComponent chess1, ChessComponent chess2) {
-//        //Stack<String> stepList = new Stack<>();
-        String sourcePart = String.valueOf(chess1.GetChessName()) + chess1.getChessboardPoint().getX() + chess1.getChessboardPoint().getY();
-        String targetPart = String.valueOf(chess2.GetChessName()) + chess2.getChessboardPoint().getX() + chess2.getChessboardPoint().getY();
+        String sourcePart = String.valueOf(chess1.GetChessName()) + 
+				chess1.getChessboardPoint().getX() + chess1.getChessboardPoint().getY();
+        String targetPart = String.valueOf(chess2.GetChessName()) + 
+				chess2.getChessboardPoint().getX() + chess2.getChessboardPoint().getY();
         String s1;
-        String s2=Integer.toString(currentRound);
+        String s2 = Integer.toString(currentRound);
         if (currentPlayer == ChessColor.BLACK) {
-            s1="b";
-        }
-        else
-            s1="w";
+            s1 = "b";
+        } else
+            s1 = "w";
 
-        stepList.push(sourcePart + targetPart+","+s1+","+s2);
+        stepList.push(sourcePart + targetPart + "," + s1 + "," + s2);
     }
 
 
-    public void addStepList(String s1){
+    public void addStepList(String s1) {
         stepList.push(s1);
     }
 
@@ -845,18 +1061,99 @@ public class Chessboard extends JComponent {
 
     //悔棋
     public void RegretStep(int num) {
-        int i=0;
+        boolean judge = false;
+        int i = 0;
         //取出一步
-        while(i<num) {
+        while (i < num) {
             //String step = stepList.get(stepList.size() - 1-i);
-            String step=stepList.pop();
-            String[] ss=step.split(",");
-            String s1 = ss[0].substring(1, 2);
-            String s2=ss[0].substring(3,4);
-            if(s1.equals(s2)&&s1.equals("_")){
-                int m=1;    //没有实际用途
+            if (stepList.size() > 1){
+                String stepA = stepList.get(stepList.size() - 1);
+                String As1 = stepA.substring(7, 8);
+                String stepB = stepList.get(stepList.size() - 2);
+                String Bs1 = stepB.substring(7, 8);
+                if (As1.equals(Bs1)){
+                    judge = true;
+                }
             }
-            else {
+            if (judge){
+                String step = stepList.pop();
+                String[] ss = step.split(",");
+                String s1 = ss[0].substring(1, 2);
+                String s2 = ss[0].substring(3, 4);
+                if (!(s1.equals(s2) && s1.equals("_"))) {
+                    int sx = Integer.parseInt(ss[0].substring(1, 2));
+                    int sy = Integer.parseInt(ss[0].substring(2, 3));
+                    int tx = Integer.parseInt(ss[0].substring(4, 5));
+                    int ty = Integer.parseInt(ss[0].substring(5, 6));
+                    ChessComponent first = chessComponents[sx][sy];
+                    ChessComponent second = chessComponents[tx][ty];
+                    RegretSwapChess(first, second);
+
+                    //有吃子，放子
+                    if (ss[0].charAt(3) != '_') {
+                        switch (ss[0].charAt((3))) {
+                            case 'R':
+                                initRookOnBoard(tx, ty, ChessColor.BLACK, 'R');
+                                break;
+                            case 'r':
+                                initRookOnBoard(tx, ty, ChessColor.WHITE, 'r');
+                                break;
+                            case 'N':
+                                initKnightOnBoard(tx, ty, ChessColor.BLACK, 'N');
+                                break;
+                            case 'n':
+                                initKnightOnBoard(tx, ty, ChessColor.WHITE, 'n');
+                                break;
+                            case 'B':
+                                initBishopOnBoard(tx, ty, ChessColor.BLACK, 'B');
+                                break;
+                            case 'b':
+                                initBishopOnBoard(tx, ty, ChessColor.WHITE, 'b');
+                                break;
+                            case 'Q':
+                                initQueenOnBoard(tx, ty, ChessColor.BLACK, 'Q');
+                                break;
+                            case 'q':
+                                initQueenOnBoard(tx, ty, ChessColor.WHITE, 'q');
+                                break;
+                            case 'K':
+                                initKingOnBoard(tx, ty, ChessColor.BLACK, 'K');
+                                break;
+                            case 'k':
+                                initKingOnBoard(tx, ty, ChessColor.WHITE, 'k');
+                                break;
+                            case 'P':
+                                initPawnOnBoard(tx, ty, ChessColor.BLACK, 'P');
+                                break;
+                            case 'p':
+                                initPawnOnBoard(tx, ty, ChessColor.WHITE, 'p');
+                                break;
+                        }
+                    }
+                    if (chessComponents[sx][sy].getChessColor() == ChessColor.BLACK && chessComponents[sx][sy] instanceof PawnChessComponent){
+                        ((PawnChessComponent) chessComponents[sx][sy]).judgeRound = currentRound;
+                        System.out.print("1 " + ((PawnChessComponent) chessComponents[sx][sy]).judgeRound);
+                    } else if (chessComponents[sx][sy].getChessColor() == ChessColor.WHITE && chessComponents[sx][sy] instanceof PawnChessComponent){
+                        ((PawnChessComponent) chessComponents[sx][sy]).judgeRound = currentRound - 1;
+                        System.out.print("2 "+((PawnChessComponent) chessComponents[sx][sy]).judgeRound);
+                    }
+                    if (chessComponents[tx][ty].getChessColor() == ChessColor.BLACK && chessComponents[tx][ty] instanceof PawnChessComponent){
+                        ((PawnChessComponent) chessComponents[tx][ty]).judgeRound = currentRound - 1;
+                        System.out.print("3 "+((PawnChessComponent) chessComponents[tx][ty]).judgeRound);
+                    } else if (chessComponents[tx][ty].getChessColor() == ChessColor.WHITE && chessComponents[tx][ty] instanceof PawnChessComponent){
+                        ((PawnChessComponent) chessComponents[tx][ty]).judgeRound = currentRound;
+                        System.out.print("4 "+((PawnChessComponent) chessComponents[tx][ty]).judgeRound);
+                    }
+                    chessComponents[sx][sy].repaint();
+                    chessComponents[tx][ty].repaint();
+                }
+                setcurPlayerRound(ss[1], ss[2]);
+            } judge = false;
+            String step = stepList.pop();
+            String[] ss = step.split(",");
+            String s1 = ss[0].substring(1, 2);
+            String s2 = ss[0].substring(3, 4);
+            if (!(s1.equals(s2) && s1.equals("_"))) {
                 int sx = Integer.parseInt(ss[0].substring(1, 2));
                 int sy = Integer.parseInt(ss[0].substring(2, 3));
                 int tx = Integer.parseInt(ss[0].substring(4, 5));
@@ -906,22 +1203,41 @@ public class Chessboard extends JComponent {
                             break;
                     }
                 }
+                if (chessComponents[sx][sy].getChessColor() == ChessColor.BLACK && chessComponents[sx][sy] instanceof PawnChessComponent){
+                    ((PawnChessComponent) chessComponents[sx][sy]).judgeRound = currentRound;
+                    System.out.print("1 " + ((PawnChessComponent) chessComponents[sx][sy]).judgeRound);
+                } else if (chessComponents[sx][sy].getChessColor() == ChessColor.WHITE && chessComponents[sx][sy] instanceof PawnChessComponent){
+                    ((PawnChessComponent) chessComponents[sx][sy]).judgeRound = currentRound - 1;
+                    System.out.print("2 "+((PawnChessComponent) chessComponents[sx][sy]).judgeRound);
+                }
+                if (chessComponents[tx][ty].getChessColor() == ChessColor.BLACK && chessComponents[tx][ty] instanceof PawnChessComponent){
+                    ((PawnChessComponent) chessComponents[tx][ty]).judgeRound = currentRound - 1;
+                    System.out.print("3 "+((PawnChessComponent) chessComponents[tx][ty]).judgeRound);
+                } else if (chessComponents[tx][ty].getChessColor() == ChessColor.WHITE && chessComponents[tx][ty] instanceof PawnChessComponent){
+                    ((PawnChessComponent) chessComponents[tx][ty]).judgeRound = currentRound;
+                    System.out.print("4 "+((PawnChessComponent) chessComponents[tx][ty]).judgeRound);
+                }
                 chessComponents[sx][sy].repaint();
                 chessComponents[tx][ty].repaint();
             }
-            setcurPlayerRound(ss[1],ss[2]);
+            setcurPlayerRound(ss[1], ss[2]);
             i++;
+        }
+        if (getCurrentPlayer().getColor() == Color.BLACK){
+            plus(getRound() - 1);
+        } else if (getCurrentPlayer().getColor() == Color.WHITE){
+            plus(getRound());
         }
         cgameFrame.setDownTimes();
         cgameFrame.RefreshStep();
     }
 
-    public void setcurPlayerRound(String s1,String s2){
-        if(s1.equals("b"))
-            currentPlayer=ChessColor.BLACK;
+    public void setcurPlayerRound(String s1, String s2) {
+        if (s1.equals("b"))
+            currentPlayer = ChessColor.BLACK;
         else
-            currentPlayer=ChessColor.WHITE;
-        currentRound=Integer.parseInt(s2);
+            currentPlayer = ChessColor.WHITE;
+        currentRound = Integer.parseInt(s2);
     }
 
     public void RegretSwapChess(ChessComponent chess1, ChessComponent chess2) {
@@ -933,7 +1249,7 @@ public class Chessboard extends JComponent {
     }
 
     //清除走棋记录
-    public void ClearSteps(){
+    public void ClearSteps() {
         stepList.clear();
     }
 
