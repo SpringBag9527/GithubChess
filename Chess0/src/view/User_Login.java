@@ -23,11 +23,11 @@ public class User_Login extends JFrame{
     private JLabel infoLab;
     private JTextField nameText;
     private JPasswordField passText;
-    private ImageIcon icon=new ImageIcon("src/images/icon.png");
-    private String Title;
-    LoginCheck login;
-    private static ChessPlayer[]  player=new ChessPlayer[2];
-    public  BgSound BackGroundSound;
+	private String Title;
+	private static ChessPlayer[]  player=new ChessPlayer[2];
+	LoginCheck login;
+	public  BgSound BackGroundSound;
+    private ImageIcon icon=new ImageIcon(this.getClass().getResource("/images/icon.png"));
 
     public User_Login(int width,int height,String title) {
         setSize(width,height);
@@ -85,7 +85,7 @@ public class User_Login extends JFrame{
                             "Dear Sir",JOptionPane.INFORMATION_MESSAGE,icon);
                     return;
                 }
-                //控制选手名不超过6位，便于排行榜控制显示
+                //控制密码不超过6位，避免
                 if(password.length()>6){
                     JOptionPane.showMessageDialog(null,"密码长度请不要超过6位！",
                             "Dear Sir",JOptionPane.INFORMATION_MESSAGE,icon);
@@ -170,7 +170,7 @@ public class User_Login extends JFrame{
             super.processWindowEvent(e);
         }
     }
-    //登录成功后，做的下一步操作
+    //登录校验成功后，做的下一步操作
     public void Do_Next() throws FileNotFoundException {
         //当前是黑方登录,下一步进入棋局
         if(Title.equals("黑方选手登录：")){
@@ -224,7 +224,6 @@ class LoginCheck{
         MyPlayer=new ChessPlayer(this.name,0,0,0);
         MyPlayer.UpdatePlayer(this.password);
     }
-
     //从存储的配置串中，获得Player信息
     public ChessPlayer GetPlayerInfo(String name,String[] sinfo){
         int fGms=Integer.parseInt(sinfo[1]);
@@ -254,9 +253,8 @@ class ChessPlayer{
     public void setChessColor(ChessColor cscolor){
         this.chessColor=cscolor;
     }
-
     public String getName(){return Name;};
-
+	//判断用户信息是否合法(用户名密码是否一致) 0一致 -1不一致  1新用户
     public IsValidate validate(String password) throws IOException {
         IsValidate isv;
         //打开并获取配置文件内容
@@ -266,23 +264,24 @@ class ChessPlayer{
         fis.close();
 
         String IniTxt=prop.getProperty(Name);
+		//没找到用户
         if(IniTxt==null) {
             isv=new IsValidate(null,1);
         }
         else {
             String[] ss=IniTxt.split(",");
+			//密码一致
             if(password.equals(ss[0])) {  //老用户获取成功 生产MyPlayer
                 ChessPlayer MyPlayer=GetPlayerInfo(Name,ss);
                 isv=new IsValidate(MyPlayer,0);
             }
-            else {
+            else {	//密码不一致
                 isv=new IsValidate(null,-1);
             }
         }
         return(isv);
     }
-
-    //从存储的配置串中，获得Player信息
+    //从存储的配置串中，获得指定Player信息
     public ChessPlayer GetPlayerInfo(String name,String[] sinfo){
         int fGms=Integer.parseInt(sinfo[1]);
         int wGms=Integer.parseInt(sinfo[2]);
@@ -290,7 +289,7 @@ class ChessPlayer{
         ChessPlayer player=new ChessPlayer(name,fGms,wGms,tGms);
         return(player);
     }
-
+	//带密码更新本用户信息,一般用于新用户
     public void UpdatePlayer(String password) throws IOException {
         //打开并获取配置文件内容
         Properties prop = new Properties();
@@ -310,7 +309,7 @@ class ChessPlayer{
             e.printStackTrace();
         }
     }
-
+	//无密码更新本用户信息，一般用户后期用户属性更新，此时没有密码，只能
     public void UpdatePlayer() throws IOException {
         //打开并获取配置文件内容
         Properties prop = new Properties();
@@ -332,8 +331,7 @@ class ChessPlayer{
             e.printStackTrace();
         }
     }
-
-    //閫氳繃閰嶇疆鏂囦欢锛岃幏鍙栨墍鏈夌敤鎴蜂俊鎭?
+    //从配置中获取所有选手信息
     public ArrayList<ChessPlayer> GetAllPlayer() throws IOException {
         ArrayList<ChessPlayer> plist=new ArrayList<ChessPlayer>();
 
@@ -343,7 +341,7 @@ class ChessPlayer{
         prop.remove("--");
         fis.close();
 
-        Enumeration enum1 = prop.propertyNames();//寰楀埌閰嶇疆鏂囦欢鐨勫悕瀛?
+        Enumeration enum1 = prop.propertyNames();//枚举所有项目名
 
         while(enum1.hasMoreElements()) {
             String strKey = (String) enum1.nextElement();
@@ -368,6 +366,7 @@ class ChessPlayer{
 //用户密码校验
 class IsValidate{
     private ChessPlayer ThePlayer;
+	//校验结果 用户名密码是否一致 0一致 -1不一致  1新用户
     private int Result=-100;
 
     public IsValidate(ChessPlayer player,int ret){
