@@ -4,6 +4,7 @@ import controller.ClickController;
 import view.ChessboardPoint;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -36,11 +37,13 @@ public class BishopChessComponent extends ChessComponent{
             oldchesspath=chesspath;
         }
         if (BISHOP_WHITE == null) {
-            BISHOP_WHITE = ImageIO.read(new File("src/images/"+chesspath+"/bishop-white.png"));
+            String filename="/images/"+chesspath+"/bishop-white.png";
+            BISHOP_WHITE = ImageIO.read(this.getClass().getResource(filename));
         }
 
         if (BISHOP_BLACK == null) {
-            BISHOP_BLACK = ImageIO.read(new File("src/images/"+chesspath+"/bishop-black.png"));
+            String filename="/images/"+chesspath+"/bishop-black.png";
+            BISHOP_BLACK = ImageIO.read(this.getClass().getResource(filename));
         }
     }
 
