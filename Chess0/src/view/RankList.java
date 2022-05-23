@@ -55,7 +55,6 @@ public class RankList extends JDialog {
         add(jla);
         setVisible(true);
     }
-
     public void AddButtons(){
         JButton button=new JButton("比赛场次");
         button.setLocation(480,10);
@@ -109,7 +108,6 @@ public class RankList extends JDialog {
             }
         });
     }
-
     //确保点击右上角关闭钮不会被关闭
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -117,7 +115,6 @@ public class RankList extends JDialog {
             super.processWindowEvent(e);
         }
     }
-
     //按照规范方式排序
     public String[] viewPlayer(SortBy sortMethod){
         int     playernum=playlist.size();
@@ -155,7 +152,7 @@ public class RankList extends JDialog {
         }
         return(sret);
     }
-
+	//获得排序指向数组
     public int[] GetSort(float[] fvalue){
         int count=fvalue.length;
         int[] order=new int[count];
@@ -177,7 +174,7 @@ public class RankList extends JDialog {
         }
         return(order);
     }
-
+	//是否在列表中
     public boolean InArrayList(int val,int[] iList,int lListSize){
         int i;
         for(i=0;i<lListSize;i++){
