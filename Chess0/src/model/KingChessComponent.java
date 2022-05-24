@@ -78,15 +78,34 @@ public class KingChessComponent extends ChessComponent{
      * @param destination     目标位置，如(0, 0), (0, 7)等等
      * @return 车棋子移动的合法性
      */
-
+    public int KingChangeRook = 0;
     @Override
     public boolean canMoveTo(ChessComponent[][] chessComponents, ChessboardPoint destination) {
         ChessboardPoint source = getChessboardPoint();
         ChessColor color = getChessColor();
         Boolean a = false;
         if (Math.abs(destination.getX() - source.getX()) <= 1 && Math.abs(destination.getY() - source.getY()) <= 1){
-            a = !CheckMate(chessComponents, chessComponents[source.getX()][source.getY()], chessComponents[destination.getX()][destination.getY()], color);
+            a = !CheckMate(chessComponents, chessComponents[destination.getX()][destination.getY()], color);
+        } else
+        if (chessComponents[source.getX()][source.getY()] instanceof KingChessComponent && ((KingChessComponent) chessComponents[source.getX()][source.getY()]).KingChangeRook == 0){
+            if (chessComponents[source.getX()][0] instanceof RookChessComponent && ((RookChessComponent) chessComponents[source.getX()][0]).RookChangeKing == 0){
+                if (destination.getY() - source.getY() == -2 && Math.abs(destination.getX() - source.getX()) == 0){
+                    a = !CheckMate(chessComponents, chessComponents[source.getX()][source.getY()], color) &&
+                            !CheckMate(chessComponents, chessComponents[destination.getX()][destination.getY()], color) &&
+                            !CheckMate(chessComponents, chessComponents[destination.getX()][destination.getY() + 1], color) &&
+                            chessComponents[destination.getX()][destination.getY() + 1] instanceof EmptySlotComponent;
+                }
+            }
+            if (chessComponents[source.getX()][7] instanceof RookChessComponent && ((RookChessComponent) chessComponents[source.getX()][7]).RookChangeKing == 0){
+                if (destination.getY() - source.getY() == 2 && Math.abs(destination.getX() - source.getX()) == 0){
+                    a = !CheckMate(chessComponents, chessComponents[source.getX()][source.getY()], color) &&
+                            !CheckMate(chessComponents, chessComponents[destination.getX()][destination.getY()], color) &&
+                            !CheckMate(chessComponents, chessComponents[destination.getX()][destination.getY() - 1], color) &&
+                            chessComponents[destination.getX()][destination.getY() - 1] instanceof EmptySlotComponent;
+                }
+            }
         }
+
         return a;
     }
 
@@ -94,7 +113,7 @@ public class KingChessComponent extends ChessComponent{
     public boolean canReach(ChessComponent[][] chessboard, ChessboardPoint destination) {
         return false;
     }
-    public boolean CheckMate(ChessComponent[][] chessComponent , ChessComponent source , ChessComponent destination , ChessColor color){
+    public boolean CheckMate(ChessComponent[][] chessComponent , ChessComponent destination , ChessColor color){
         boolean kingDanger = false;
         int x = 0, y = 0;
         int pre = 0;
