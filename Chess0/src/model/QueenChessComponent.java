@@ -79,7 +79,8 @@ public class QueenChessComponent extends ChessComponent{
      * @param destination     目标位置，如(0, 0), (0, 7)等等
      * @return 车棋子移动的合法性
      */
-
+    public int judge = 0;
+    public int Change = 0;
     @Override
     public boolean canMoveTo(ChessComponent[][] chessComponents, ChessboardPoint destination) {
         ChessboardPoint source = getChessboardPoint();
