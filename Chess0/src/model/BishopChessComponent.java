@@ -4,7 +4,6 @@ import controller.ClickController;
 import view.ChessboardPoint;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -37,13 +36,11 @@ public class BishopChessComponent extends ChessComponent{
             oldchesspath=chesspath;
         }
         if (BISHOP_WHITE == null) {
-            String filename="/images/"+chesspath+"/bishop-white.png";
-            BISHOP_WHITE = ImageIO.read(this.getClass().getResource(filename));
+            BISHOP_WHITE = ImageIO.read(new File("src/images/"+chesspath+"/bishop-white.png"));
         }
 
         if (BISHOP_BLACK == null) {
-            String filename="/images/"+chesspath+"/bishop-black.png";
-            BISHOP_BLACK = ImageIO.read(this.getClass().getResource(filename));
+            BISHOP_BLACK = ImageIO.read(new File("src/images/"+chesspath+"/bishop-black.png"));
         }
     }
 
@@ -81,6 +78,8 @@ public class BishopChessComponent extends ChessComponent{
      * @param destination     目标位置，如(0, 0), (0, 7)等等
      * @return 车棋子移动的合法性
      */
+     public int judge = 0;
+     public int Change = 0;
 
         @Override
         public boolean canMoveTo(ChessComponent[][] chessComponents, ChessboardPoint destination) {
