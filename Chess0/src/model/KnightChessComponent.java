@@ -37,13 +37,11 @@ public class KnightChessComponent extends ChessComponent{
             oldchesspath=chesspath;
         }
         if (KNIGHT_WHITE == null) {
-            String filename="/images/"+chesspath+"/knight-white.png";
-            KNIGHT_WHITE = ImageIO.read(this.getClass().getResource(filename));
+            KNIGHT_WHITE = ImageIO.read(new File("src/images/"+chesspath+"/knight-white.png"));
         }
 
         if (KNIGHT_BLACK == null) {
-            String filename="/images/"+chesspath+"/knight-black.png";
-            KNIGHT_BLACK = ImageIO.read(this.getClass().getResource(filename));
+            KNIGHT_BLACK = ImageIO.read(new File("src/images/"+chesspath+"/knight-black.png"));
         }
     }
 
@@ -81,7 +79,8 @@ public class KnightChessComponent extends ChessComponent{
      * @param destination     目标位置，如(0, 0), (0, 7)等等
      * @return 车棋子移动的合法性
      */
-
+    public int judge;
+    public int Change;
     @Override
     public boolean canMoveTo(ChessComponent[][] chessComponents, ChessboardPoint destination) {
         ChessboardPoint source = getChessboardPoint();
