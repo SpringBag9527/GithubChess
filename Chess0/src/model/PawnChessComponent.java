@@ -78,15 +78,18 @@ public class PawnChessComponent extends ChessComponent{
      * @param destination     目标位置，如(0, 0), (0, 7)等等
      * @return 车棋子移动的合法性
      */
-
+    public int judge = 0;
+    public int judgeRound = 0;
+    public int judgeRoundPlus = 0;
+    public int judgePath = 0;
     @Override
     public boolean canMoveTo(ChessComponent[][] chessComponents, ChessboardPoint destination) {
         ChessboardPoint source = getChessboardPoint();
         ChessColor a = getChessColor();
         if (a == ChessColor.WHITE){
             if (destination.getY() - source.getY() == 0){
-                if (source.getX() == 6){
-                    if (source.getX() - destination.getX() == 2){
+                if (source.getX() == 6) {
+                    if (source.getX() - destination.getX() == 2) {
                         return chessComponents[destination.getX() + 1][destination.getY()] instanceof EmptySlotComponent && chessComponents[destination.getX()][destination.getY()] instanceof EmptySlotComponent;
                     } else if (source.getX() - destination.getX() == 1) {
                         return chessComponents[destination.getX()][destination.getY()] instanceof EmptySlotComponent;
@@ -96,10 +99,15 @@ public class PawnChessComponent extends ChessComponent{
                         return chessComponents[destination.getX()][destination.getY()] instanceof EmptySlotComponent;
                     }
                 }
+            } else if (source.getX() == 3 && destination.getX() == 3 && destination.getY() == source.getY() - 1 && chessComponents[source.getX()][source.getY() - 1] instanceof PawnChessComponent && ((PawnChessComponent) chessComponents[source.getX()][source.getY() - 1]).judge == 1 && ((PawnChessComponent) chessComponents[source.getX()][source.getY()]).judgeRoundPlus == ((PawnChessComponent) chessComponents[source.getX()][source.getY() - 1]).judgeRound){
+                return true;
+            } else if (source.getX() == 3 && destination.getX() == 3 && destination.getY() == source.getY() + 1 && chessComponents[source.getX()][source.getY() + 1] instanceof PawnChessComponent && ((PawnChessComponent) chessComponents[source.getX()][source.getY() + 1]).judge == 1 && ((PawnChessComponent) chessComponents[source.getX()][source.getY()]).judgeRoundPlus == ((PawnChessComponent) chessComponents[source.getX()][source.getY() + 1]).judgeRound){
+                return true;
             } else if (destination.getX() - source.getX() == -1 && Math.abs(destination.getY() - source.getY()) == 1){
                 return !(chessComponents[destination.getX()][destination.getY()] instanceof EmptySlotComponent);
             }
-        } else if (a == ChessColor.BLACK){
+        }
+        else if (a == ChessColor.BLACK){
             if (destination.getY() - source.getY() == 0) {
                 if (source.getX() == 1) {
                     if (source.getX() - destination.getX() == -2){
@@ -112,6 +120,10 @@ public class PawnChessComponent extends ChessComponent{
                         return chessComponents[destination.getX()][destination.getY()] instanceof EmptySlotComponent;
                     }
                 }
+            } else if (source.getX() == 4 && destination.getX() == 4 && destination.getY() == source.getY() - 1 && chessComponents[source.getX()][source.getY() - 1] instanceof PawnChessComponent && ((PawnChessComponent) chessComponents[source.getX()][source.getY() - 1]).judge == 1 && ((PawnChessComponent) chessComponents[source.getX()][source.getY()]).judgeRoundPlus == ((PawnChessComponent) chessComponents[source.getX()][source.getY() - 1]).judgeRound){
+                return true;
+            } else if (source.getX() == 4 && destination.getX() == 4 && destination.getY() == source.getY() + 1 && chessComponents[source.getX()][source.getY() + 1] instanceof PawnChessComponent && ((PawnChessComponent) chessComponents[source.getX()][source.getY() + 1]).judge == 1 && ((PawnChessComponent) chessComponents[source.getX()][source.getY()]).judgeRoundPlus == ((PawnChessComponent) chessComponents[source.getX()][source.getY() + 1]).judgeRound){
+                return true;
             } else if (destination.getX() - source.getX() == 1 && Math.abs(destination.getY() - source.getY()) == 1){
                 return !(chessComponents[destination.getX()][destination.getY()] instanceof EmptySlotComponent);
             }
